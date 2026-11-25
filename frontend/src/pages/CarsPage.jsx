@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useCars } from "../context/CarContext";
 import CarCard from "../components/CarCard";
@@ -8,6 +9,7 @@ const CarsPage = () => {
   const [showForm, setShowForm] = useState(false);
   const [appointmentToEdit, setAppointmentToEdit] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState("Todos");
+  const [busqueda, setBusqueda] = useState("");
 
   const handleEdit = (appointment) => {
     setAppointmentToEdit(appointment);
@@ -19,9 +21,16 @@ const CarsPage = () => {
     setShowForm(false);
   };
 
-  const citasFiltradas = filtroEstado === "Todos"
-    ? state.appointments
-    : state.appointments.filter((a) => a.estado === filtroEstado);
+  const citasFiltradas = state.appointments.filter((a) => {
+    const coincideEstado =
+      filtroEstado === "Todos" || a.estado === filtroEstado;
+
+    const coincideNombre = String(a.cliente || "")
+      .toLowerCase()
+      .includes(busqueda.trim().toLowerCase());
+
+    return coincideEstado && coincideNombre;
+  });
 
   return (
     <div style={styles.container}>
@@ -58,6 +67,27 @@ const CarsPage = () => {
             </span>
             <span style={styles.statLabel}>Canceladas</span>
           </div>
+        </div>
+
+        {/* Buscador de citas por cliente - HU01 */}
+        <div style={styles.busquedaContainer}>
+          <input
+            type="text"
+            placeholder="🔍 Buscar cita por nombre del cliente..."
+            value={busqueda}
+            onChange={(e) => setBusqueda(e.target.value)}
+            style={styles.busquedaInput}
+            aria-label="Buscar citas por nombre del cliente"
+          />
+
+          {busqueda && (
+            <button
+              style={styles.limpiarBusqueda}
+              onClick={() => setBusqueda("")}
+            >
+              Limpiar
+            </button>
+          )}
         </div>
 
         <div style={styles.filtros}>
@@ -98,7 +128,11 @@ const CarsPage = () => {
         <p style={styles.loading}>⏳ Cargando citas...</p>
       ) : citasFiltradas.length === 0 ? (
         <p style={styles.loading}>
-          No hay citas {filtroEstado !== "Todos" ? `con estado "${filtroEstado}"` : "registradas"}
+          {busqueda.trim()
+            ? `No se encontraron citas para "${busqueda}".`
+            : filtroEstado !== "Todos"
+              ? `No hay citas con estado "${filtroEstado}".`
+              : "No hay citas registradas."}
         </p>
       ) : (
         <div style={styles.grid}>
@@ -171,6 +205,35 @@ const styles = {
     marginTop: "4px",
     textTransform: "uppercase",
     letterSpacing: "1px",
+  },
+  busquedaContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "8px",
+    marginBottom: "18px",
+    flexWrap: "wrap",
+  },
+  busquedaInput: {
+    width: "100%",
+    maxWidth: "420px",
+    padding: "12px 16px",
+    borderRadius: "10px",
+    border: "1px solid #555",
+    backgroundColor: "#313244",
+    color: "#cdd6f4",
+    fontSize: "14px",
+    outline: "none",
+    boxSizing: "border-box",
+  },
+  limpiarBusqueda: {
+    padding: "12px 16px",
+    border: "1px solid #555",
+    borderRadius: "10px",
+    backgroundColor: "#45475a",
+    color: "#cdd6f4",
+    cursor: "pointer",
+    fontWeight: "bold",
   },
   filtros: {
     display: "flex",
