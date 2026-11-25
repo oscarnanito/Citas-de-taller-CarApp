@@ -10,6 +10,7 @@ const CarsPage = () => {
   const [appointmentToEdit, setAppointmentToEdit] = useState(null);
   const [filtroEstado, setFiltroEstado] = useState("Todos");
   const [busqueda, setBusqueda] = useState("");
+  const [ordenFecha, setOrdenFecha] = useState("asc");
 
   const handleEdit = (appointment) => {
     setAppointmentToEdit(appointment);
@@ -21,16 +22,30 @@ const CarsPage = () => {
     setShowForm(false);
   };
 
-  const citasFiltradas = state.appointments.filter((a) => {
-    const coincideEstado =
-      filtroEstado === "Todos" || a.estado === filtroEstado;
+  const citasFiltradas = state.appointments
+    .filter((a) => {
+      const coincideEstado =
+        filtroEstado === "Todos" || a.estado === filtroEstado;
 
-    const coincideNombre = String(a.cliente || "")
-      .toLowerCase()
-      .includes(busqueda.trim().toLowerCase());
+      const coincideNombre = String(a.cliente || "")
+        .toLowerCase()
+        .includes(busqueda.trim().toLowerCase());
 
-    return coincideEstado && coincideNombre;
-  });
+      return coincideEstado && coincideNombre;
+    })
+    .sort((a, b) => {
+      const fechaA = new Date(
+        `${a.fecha}T${a.hora || "00:00"}`
+      ).getTime();
+
+      const fechaB = new Date(
+        `${b.fecha}T${b.hora || "00:00"}`
+      ).getTime();
+
+      return ordenFecha === "asc"
+        ? fechaA - fechaB
+        : fechaB - fechaA;
+    });
 
   return (
     <div style={styles.container}>
@@ -88,6 +103,23 @@ const CarsPage = () => {
               Limpiar
             </button>
           )}
+        </div>
+
+        {/* Ordenamiento de citas por fecha - HU02 */}
+        <div style={styles.ordenContainer}>
+          <label style={styles.ordenLabel} htmlFor="ordenFecha">
+            Ordenar citas:
+          </label>
+
+          <select
+            id="ordenFecha"
+            value={ordenFecha}
+            onChange={(e) => setOrdenFecha(e.target.value)}
+            style={styles.ordenSelect}
+          >
+            <option value="asc">Más próximas primero</option>
+            <option value="desc">Más lejanas primero</option>
+          </select>
         </div>
 
         <div style={styles.filtros}>
@@ -234,6 +266,29 @@ const styles = {
     color: "#cdd6f4",
     cursor: "pointer",
     fontWeight: "bold",
+  },
+  ordenContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "10px",
+    marginBottom: "18px",
+    flexWrap: "wrap",
+  },
+  ordenLabel: {
+    color: "#cdd6f4",
+    fontSize: "14px",
+    fontWeight: "bold",
+  },
+  ordenSelect: {
+    padding: "10px 14px",
+    borderRadius: "10px",
+    border: "1px solid #555",
+    backgroundColor: "#313244",
+    color: "#cdd6f4",
+    fontSize: "14px",
+    cursor: "pointer",
+    outline: "none",
   },
   filtros: {
     display: "flex",
