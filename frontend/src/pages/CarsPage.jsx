@@ -23,6 +23,13 @@ const CarsPage = () => {
     setShowForm(false);
   };
 
+  const limpiarFiltros = () => {
+    setBusqueda("");
+    setFiltroEstado("Todos");
+    setFechaSeleccionada("");
+    setOrdenFecha("asc");
+  };
+
   const citasFiltradas = state.appointments
     .filter((a) => {
       const coincideEstado =
@@ -67,8 +74,8 @@ const CarsPage = () => {
             ? `No se encontraron citas para la fecha ${fechaSeleccionada}.`
             : `No hay citas con estado "${filtroEstado}".`
         : `No se encontraron citas para ${filtrosActivos
-            .slice(0, -1)
-            .join(", ")} y ${filtrosActivos[filtrosActivos.length - 1]}.`;
+          .slice(0, -1)
+          .join(", ")} y ${filtrosActivos[filtrosActivos.length - 1]}.`;
 
   return (
     <div style={styles.container}>
@@ -175,6 +182,16 @@ const CarsPage = () => {
             </button>
           ))}
         </div>
+
+        <button
+          type="button"
+          style={styles.limpiarFiltrosBtn}
+          onClick={limpiarFiltros}
+        >
+          Limpiar filtros
+        </button>
+
+        <br /><br />
 
         <button
           style={styles.addBtn}
@@ -366,6 +383,16 @@ const styles = {
     fontSize: "13px",
     backdropFilter: "blur(5px)",
     transition: "all 0.2s",
+  },
+  limpiarFiltrosBtn: {
+    padding: "10px 16px",
+    border: "1px solid #555",
+    borderRadius: "10px",
+    backgroundColor: "#0060ceff",
+    color: "#cdd6f4",
+    cursor: "pointer",
+    fontWeight: "bold",
+    marginBottom: "18px",
   },
   addBtn: {
     padding: "14px 28px",
