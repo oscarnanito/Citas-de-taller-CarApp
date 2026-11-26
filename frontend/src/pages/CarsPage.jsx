@@ -187,6 +187,12 @@ const CarsPage = () => {
         </button>
       </div>
 
+      {!state.loading && (
+        <p style={styles.contadorResultados} aria-live="polite">
+          Mostrando {citasFiltradas.length} de {state.appointments.length} citas
+        </p>
+      )}
+
       {showForm && (
         <CarForm
           appointmentToEdit={appointmentToEdit}
@@ -373,6 +379,12 @@ const styles = {
     boxShadow: "0 4px 15px rgba(231,76,60,0.4)",
     letterSpacing: "1px",
     textTransform: "uppercase",
+  },
+  contadorResultados: {
+    color: "#b0b0b0",
+    textAlign: "center",
+    fontSize: "14px",
+    marginBottom: "18px",
   },
   grid: {
     display: "flex",
