@@ -11,6 +11,7 @@ const CarsPage = () => {
   const [filtroEstado, setFiltroEstado] = useState("Todos");
   const [busqueda, setBusqueda] = useState("");
   const [ordenFecha, setOrdenFecha] = useState("asc");
+  const [fechaSeleccionada, setFechaSeleccionada] = useState("");
 
   const handleEdit = (appointment) => {
     setAppointmentToEdit(appointment);
@@ -31,7 +32,10 @@ const CarsPage = () => {
         .toLowerCase()
         .includes(busqueda.trim().toLowerCase());
 
-      return coincideEstado && coincideNombre;
+      const coincideFecha =
+        !fechaSeleccionada || a.fecha === fechaSeleccionada;
+
+      return coincideEstado && coincideNombre && coincideFecha;
     })
     .sort((a, b) => {
       const fechaA = new Date(
@@ -46,6 +50,25 @@ const CarsPage = () => {
         ? fechaA - fechaB
         : fechaB - fechaA;
     });
+
+  const filtrosActivos = [
+    busqueda.trim() ? `la búsqueda "${busqueda.trim()}"` : null,
+    fechaSeleccionada ? `la fecha ${fechaSeleccionada}` : null,
+    filtroEstado !== "Todos" ? `el estado "${filtroEstado}"` : null,
+  ].filter(Boolean);
+
+  const mensajeVacio =
+    filtrosActivos.length === 0
+      ? "No hay citas registradas."
+      : filtrosActivos.length === 1
+        ? busqueda.trim()
+          ? `No se encontraron citas para "${busqueda}".`
+          : fechaSeleccionada
+            ? `No se encontraron citas para la fecha ${fechaSeleccionada}.`
+            : `No hay citas con estado "${filtroEstado}".`
+        : `No se encontraron citas para ${filtrosActivos
+            .slice(0, -1)
+            .join(", ")} y ${filtrosActivos[filtrosActivos.length - 1]}.`;
 
   return (
     <div style={styles.container}>
@@ -122,6 +145,21 @@ const CarsPage = () => {
           </select>
         </div>
 
+        {/* Filtro de citas por fecha - HU03 */}
+        <div style={styles.fechaContainer}>
+          <label style={styles.fechaLabel} htmlFor="fechaCita">
+            Filtrar por fecha:
+          </label>
+
+          <input
+            id="fechaCita"
+            type="date"
+            value={fechaSeleccionada}
+            onChange={(e) => setFechaSeleccionada(e.target.value)}
+            style={styles.fechaInput}
+          />
+        </div>
+
         <div style={styles.filtros}>
           {["Todos", "Pendiente", "En proceso", "Completada", "Cancelada"].map((f) => (
             <button
@@ -159,13 +197,7 @@ const CarsPage = () => {
       {state.loading ? (
         <p style={styles.loading}>⏳ Cargando citas...</p>
       ) : citasFiltradas.length === 0 ? (
-        <p style={styles.loading}>
-          {busqueda.trim()
-            ? `No se encontraron citas para "${busqueda}".`
-            : filtroEstado !== "Todos"
-              ? `No hay citas con estado "${filtroEstado}".`
-              : "No hay citas registradas."}
-        </p>
+        <p style={styles.loading}>{mensajeVacio}</p>
       ) : (
         <div style={styles.grid}>
           {citasFiltradas.map((appointment) => (
@@ -289,6 +321,28 @@ const styles = {
     fontSize: "14px",
     cursor: "pointer",
     outline: "none",
+  },
+  fechaContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "10px",
+    marginBottom: "18px",
+    flexWrap: "wrap",
+  },
+  fechaLabel: {
+    color: "#cdd6f4",
+    fontSize: "14px",
+    fontWeight: "bold",
+  },
+  fechaInput: {
+    padding: "10px 14px",
+    borderRadius: "10px",
+    border: "1px solid #555",
+    backgroundColor: "#313244",
+    color: "#cdd6f4",
+    fontSize: "14px",
+    cursor: "pointer",
   },
   filtros: {
     display: "flex",
